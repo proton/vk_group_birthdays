@@ -18,6 +18,19 @@
           </div>
         </div>
       </div>
+      {{ group_info && group_info.name }}
+      <table class="table table-bordered table-striped" v-if="group_info">
+        <tbody>
+          <tr>
+            <td><img v-bind:src="group_info.photo_50" /></td>
+            <td>
+              {{ group_info.name }}
+              <br/>
+              Участников: {{ group_info.members_count }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
       <table class="table table-bordered table-striped" v-if="users.length > 0">
         <thead>
           <tr>
