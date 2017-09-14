@@ -39,7 +39,7 @@
           <tr>
             <th>Фото</th>
             <th>Имя</th>
-            <th>Дата рождения</th>
+            <th>День рождения</th>
             <th>Ссылка</th>
           </tr>
         </thead>
@@ -47,7 +47,7 @@
           <tr v-for="user in users">
             <td><img :src="user.photo_50" /></td>
             <td>{{ user.first_name }} {{ user.last_name }}</td>
-            <td>{{ user.bdate }}</td>
+            <td>{{ user.next_bdate }}</td>
             <td><a :href="domain + user.id">{{ domain + user.id }}</a></td>
           </tr>
         </tbody>

@@ -17,6 +17,17 @@ function auth() {
   });
 }
 
+function calculateNextBirthday(birthday_string) {
+  if (!!birthday_string) return null;
+  var birthday_arr = birthday_string.split('.');
+  var day = +birthday_arr[0];
+  var month = +birthday_arr[1] - 1;
+  var now = new Date();
+  var year = now.getFullYear();
+  if (month < now.getMonth() || (month == now.getMonth() && day < now.getDate())) ++year;
+  return new Date(year, month, day);
+}
+
 VK.init({ apiId: 6183713 });
 auth();
 
@@ -63,7 +74,7 @@ var app = new Vue({
       });
     },
     loadGroupMembersApiRequest: function(group_id, count, offset) {
-      return 'API.groups.getMembers({"group_id": ' + group_id + ', "v": '+VK_API_VERSION+', "sort": "id_asc", "fields": "photo_50, photo_400_orig, education, universities, schools, bdate", "count": "' + count + '", "offset": ' + offset + '}).items';
+      return 'API.groups.getMembers({"group_id": ' + group_id + ', "v": '+VK_API_VERSION+', "sort": "id_asc", "fields": "photo_50, photo_400_orig, education, universities, bdate", "count": "' + count + '", "offset": ' + offset + '}).items';
     },
     loadGroupMembers: function() {
       var self = this;
@@ -73,7 +84,7 @@ var app = new Vue({
       var offset = 1000;
       var code =  'var members = ' + self.loadGroupMembersApiRequest(group_id, offset, self.users.length) + ';' // делаем первый запрос и создаем массив
       + 'var offset = '+offset+';' // это сдвиг по участникам группы
-      + 'while (offset < '+ 25*offset + ' && (offset + ' + self.users.length + ') < ' + members_count + ')' // пока не получили 20000 и не прошлись по всем участникам
+      + 'while (offset < '+ 20*offset + ' && (offset + ' + self.users.length + ') < ' + members_count + ')' // пока не получили 20000 и не прошлись по всем участникам
       + '{'
         + 'members = members + ' + self.loadGroupMembersApiRequest(group_id, offset, self.users.length + ' + offset') + ';' // сдвиг участников на offset + мощность массива
         + 'offset = offset + '+offset+';' // увеличиваем сдвиг на 1000
@@ -82,7 +93,7 @@ var app = new Vue({
   
       VK.Api.call("execute", {code: code}, function(r) {
         if (r.response) {
-          console.log(r.response[0]);
+          var new_users = r.response.foreach(function(u) { u.next_bdate = calculateNextBirthday(u.bdate); })
           self.users = self.users.concat(r.response); // запишем это в массив
           self.progress = self.users.length*100/members_count;
           if (members_count >  self.users.length) // если еще не всех участников получили
