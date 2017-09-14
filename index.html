@@ -14,15 +14,18 @@
       <div class="card">
         <div class="card-body">
           <div class="form-group">
-            <input v-model="url" class="form-control" v-bind:class="{ 'is-invalid': url.length > 0 && urlInvalid() }" placeholder="Введи url группы">
+            <input v-model="url" class="form-control" :class="{ 'is-invalid': url.length > 0 && urlInvalid() }" placeholder="Введи url группы">
           </div>
         </div>
       </div>
       {{ group_info && group_info.name }}
+      <div class="progress" v-if="progress < 100">
+        <div class="progress-bar" role="progressbar" :style="{ width: progress+'%' }" :aria-valuenow="progress" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
       <table class="table table-bordered table-striped" v-if="group_info">
         <tbody>
           <tr>
-            <td><img v-bind:src="group_info.photo_50" /></td>
+            <td><img v-bind:src="group_info.photo_100" /></td>
             <td>
               {{ group_info.name }}
               <br/>
@@ -42,10 +45,10 @@
         </thead>
         <tbody>
           <tr v-for="user in users">
-            <td>{{ user.name }}</td>
-            <td>{{ user.name }}</td>
-            <td>{{ user.name }}</td>
-            <td>{{ user.name }}</td>
+            <td><img :src="user.photo_50" /></td>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ user.bdate }}</td>
+            <td><a :href="domain + user.id">{{ domain + user.id }}</a></td>
           </tr>
         </tbody>
       </table>
