@@ -37,12 +37,16 @@ var app = new Vue({
     domain: 'https://vk.com/',
     url: 'https://vk.com/s1ovesnik',
     users: [],
-    group_info: null,
-    progress: 100
+    group_info: null
   },
   computed: {
     sortedUsers: function() {
       return _.orderBy(this.users, ['next_bdate'], ['asc']);
+    },
+    progress: function() {
+      if (!this.group_info) return 100;
+      if (!this.group_info.members_count) return 100;
+      return this.users.length * 100 / this.group_info.members_count;
     }
   },
   watch: {
@@ -53,7 +57,6 @@ var app = new Vue({
     resetData: function() {
       this.users = [];
       this.group_info = null;
-      this.progress = 100;
     },
     updateData: function() {
       if (this.urlInvalid()) this.resetData();
@@ -91,8 +94,7 @@ var app = new Vue({
       var self = this;
       var group_id = self.group_info.id;
       var members_count = self.group_info.members_count;
-      self.progress = self.users.length*100/members_count;
-      var offset = 1000;
+      var offset = 10;
       var code =  'var members = ' + self.loadGroupMembersApiRequest(group_id, offset, self.users.length) + ';' // делаем первый запрос и создаем массив
       + 'var offset = '+offset+';' // это сдвиг по участникам группы
       + 'while (offset < '+ 20*offset + ' && (offset + ' + self.users.length + ') < ' + members_count + ')' // пока не получили 20000 и не прошлись по всем участникам
@@ -106,11 +108,8 @@ var app = new Vue({
         if (r.response) {
           var new_users = r.response.forEach(function(u) { u.next_bdate = calculateNextBirthday(u.bdate); })
           self.users = self.users.concat(r.response); // запишем это в массив
-          self.progress = self.users.length*100/members_count;
           if (members_count >  self.users.length) // если еще не всех участников получили
             setTimeout(function() { self.loadGroupMembers(); }, 333); // задержка 0.333 с. после чего запустим еще раз
-          else // если конец то
-            self.progress = 100;
         } else {
           console.log(data.error.error_msg);
           self.resetData();
