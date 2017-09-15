@@ -18,7 +18,7 @@ function auth() {
 }
 
 function calculateNextBirthday(birthday_string) {
-  if (!!birthday_string) return null;
+  if (!birthday_string) return null;
   var birthday_arr = birthday_string.split('.');
   var day = +birthday_arr[0];
   var month = +birthday_arr[1] - 1;
@@ -62,6 +62,10 @@ var app = new Vue({
       }
       return true;
     },
+    formatDate(date) {
+      if (!date) return '';
+      return date.toLocaleString('ru', { month: 'long', day: 'numeric' } );
+    },
     loadGroupInfo: function() {
       var self = this;
       var group_id = this.url.slice(self.domain.length);
@@ -77,6 +81,7 @@ var app = new Vue({
       return 'API.groups.getMembers({"group_id": ' + group_id + ', "v": '+VK_API_VERSION+', "sort": "id_asc", "fields": "photo_50, photo_400_orig, education, universities, bdate", "count": "' + count + '", "offset": ' + offset + '}).items';
     },
     loadGroupMembers: function() {
+      // (c) https://habrahabr.ru/post/248725/
       var self = this;
       var group_id = self.group_info.id;
       var members_count = self.group_info.members_count;
@@ -93,7 +98,7 @@ var app = new Vue({
   
       VK.Api.call("execute", {code: code}, function(r) {
         if (r.response) {
-          var new_users = r.response.foreach(function(u) { u.next_bdate = calculateNextBirthday(u.bdate); })
+          var new_users = r.response.forEach(function(u) { u.next_bdate = calculateNextBirthday(u.bdate); })
           self.users = self.users.concat(r.response); // запишем это в массив
           self.progress = self.users.length*100/members_count;
           if (members_count >  self.users.length) // если еще не всех участников получили
