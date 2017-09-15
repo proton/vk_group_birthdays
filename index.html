@@ -40,6 +40,7 @@
             <th>Фото</th>
             <th>Имя</th>
             <th>День рождения</th>
+            <th>Образование</th>
             <th>Ссылка</th>
           </tr>
         </thead>
@@ -48,6 +49,7 @@
             <td><img :src="user.photo_50" /></td>
             <td>{{ user.first_name }} {{ user.last_name }}</td>
             <td>{{ formatDate(user.next_bdate) }}</td>
+            <td><div v-for="university in user.universities">{{ university.name }}</div></td>
             <td><a :href="domain + user.id">{{ domain + user.id }}</a></td>
           </tr>
         </tbody>

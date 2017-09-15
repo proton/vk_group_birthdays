@@ -78,7 +78,8 @@ var app = new Vue({
       });
     },
     loadGroupMembersApiRequest: function(group_id, count, offset) {
-      return 'API.groups.getMembers({"group_id": ' + group_id + ', "v": '+VK_API_VERSION+', "sort": "id_asc", "fields": "photo_50, photo_400_orig, education, universities, bdate", "count": "' + count + '", "offset": ' + offset + '}).items';
+      var fields = 'photo_50, photo_400_orig, universities, bdate';
+      return 'API.groups.getMembers({"group_id": ' + group_id + ', "v": ' + VK_API_VERSION + ', "sort": "id_asc", "fields": "' + fields + '", "count": "' + count + '", "offset": ' + offset + '}).items';
     },
     loadGroupMembers: function() {
       // (c) https://habrahabr.ru/post/248725/
