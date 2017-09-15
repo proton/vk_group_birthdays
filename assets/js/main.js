@@ -77,7 +77,7 @@ var app = new Vue({
     loadGroupInfo: function() {
       var self = this;
       var group_id = this.url.slice(self.domain.length);
-      VK.Api.call('groups.getById', { group_id: group_id, fields: 'members_count, photo_100', v: VK_API_VERSION }, function(r) {
+      VK.Api.call('groups.getById', { group_id: group_id, fields: 'members_count, photo_50', v: VK_API_VERSION }, function(r) {
         if(r.response) {
           self.group_info = r.response[0];
           if (self.group_info.members_count) self.loadGroupMembers();
@@ -94,7 +94,7 @@ var app = new Vue({
       var self = this;
       var group_id = self.group_info.id;
       var members_count = self.group_info.members_count;
-      var offset = 10;
+      var offset = 1000;
       var code =  'var members = ' + self.loadGroupMembersApiRequest(group_id, offset, self.users.length) + ';' // делаем первый запрос и создаем массив
       + 'var offset = '+offset+';' // это сдвиг по участникам группы
       + 'while (offset < '+ 20*offset + ' && (offset + ' + self.users.length + ') < ' + members_count + ')' // пока не получили 20000 и не прошлись по всем участникам
