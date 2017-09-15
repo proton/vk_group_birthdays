@@ -9,12 +9,21 @@
 
 <body>
 <div class="container" id="app">
-  <div class="row">
+  <div class="row" v-if="!vk_session">
+    <div class="col">
+    <p>
+    Вы не авторизованы в vk, нажмите эту кноку и дайте доступ приложению в открывшемся окне.<br/>
+    Мы обещаем, что будем использовать ваши данные только в целях укрепления режима Чучхе.
+    </p>
+    <button type="button" class="btn btn-primary btn-lg" v-on:click="vkAuth">Войти</button>
+    </div>
+  </div>
+  <div class="row" v-if="vk_session">
     <div class="col">
       <div class="card">
         <div class="card-body">
           <div class="form-group">
-            <input v-model="url" class="form-control" :class="{ 'is-invalid': url.length > 0 && urlInvalid() }" placeholder="Введи url группы">
+            <input v-model="url" class="form-control" :class="{ 'is-invalid': url.length > 0 && urlInvalid }" placeholder="Введи url группы">
           </div>
         </div>
       </div>

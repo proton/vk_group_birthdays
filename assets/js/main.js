@@ -1,21 +1,5 @@
 var VK_API_VERSION = '5.61';
-
-function auth() {
-  VK.Auth.getLoginStatus(function(response) {
-    if (!response.session) {
-      VK.Auth.login(function(response) {
-        if (response.session) {
-          console.log("ok");
-          if (response.settings) {
-            console.log(response.settings);
-          }
-        } else {
-          alert("Это был неправильный выбор");
-        }
-      });
-    }
-  });
-}
+var VK_APP_ID = 6183713;
 
 function calculateNextBirthday(birthday_string) {
   if (!birthday_string) return null;
@@ -28,8 +12,7 @@ function calculateNextBirthday(birthday_string) {
   return new Date(year, month, day);
 }
 
-VK.init({ apiId: 6183713 });
-auth();
+VK.init({ apiId: VK_APP_ID });
 
 var app = new Vue({
   el: '#app',
@@ -37,7 +20,8 @@ var app = new Vue({
     domain: 'https://vk.com/',
     url: 'https://vk.com/s1ovesnik',
     users: [],
-    group_info: null
+    group_info: null,
+    vk_session: null
   },
   computed: {
     sortedUsers: function() {
@@ -47,28 +31,38 @@ var app = new Vue({
       if (!this.group_info) return 100;
       if (!this.group_info.members_count) return 100;
       return this.users.length * 100 / this.group_info.members_count;
-    }
-  },
-  watch: {
-    url: function() { this.updateData(); }
-  },
-  created: function() { this.updateData(); },
-  methods: {
-    resetData: function() {
-      this.users = [];
-      this.group_info = null;
-    },
-    updateData: function() {
-      if (this.urlInvalid()) this.resetData();
-      else {
-        this.loadGroupInfo();
-      }
     },
     urlInvalid: function() {
       if(_.startsWith(this.url, this.domain)) {
         return false;
       }
       return true;
+    }
+  },
+  watch: {
+    url: function() { this.updateData(); }
+  },
+  created: function() {
+    this.vkLoadSession();
+  },
+  methods: {
+    resetData: function() {
+      this.users = [];
+      this.group_info = null;
+    },
+    updateData: function() {
+      if (this.urlInvalid) this.resetData();
+      else this.loadGroupInfo();
+    },
+    setVkSession: function(response) {
+      this.vk_session = response.session;
+      if (this.vk_session) this.updateData();
+    },
+    vkLoadSession: function() {
+      VK.Auth.getLoginStatus(this.setVkSession);
+    },
+    vkAuth: function() {
+      VK.Auth.login(this.setVkSession);
     },
     formatDate(date) {
       if (!date) return '';
@@ -97,7 +91,7 @@ var app = new Vue({
       var offset = 1000;
       var code =  'var members = ' + self.loadGroupMembersApiRequest(group_id, offset, self.users.length) + ';' // делаем первый запрос и создаем массив
       + 'var offset = '+offset+';' // это сдвиг по участникам группы
-      + 'while (offset < '+ 20*offset + ' && (offset + ' + self.users.length + ') < ' + members_count + ')' // пока не получили 20000 и не прошлись по всем участникам
+      + 'while (offset < '+ 20 * offset + ' && (offset + ' + self.users.length + ') < ' + members_count + ')' // пока не получили 20000 и не прошлись по всем участникам
       + '{'
         + 'members = members + ' + self.loadGroupMembersApiRequest(group_id, offset, self.users.length + ' + offset') + ';' // сдвиг участников на offset + мощность массива
         + 'offset = offset + '+offset+';' // увеличиваем сдвиг на 1000
