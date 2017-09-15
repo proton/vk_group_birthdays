@@ -45,7 +45,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in users">
+          <tr v-for="user in sortedUsers">
             <td><img :src="user.photo_50" /></td>
             <td>{{ user.first_name }} {{ user.last_name }}</td>
             <td>{{ formatDate(user.next_bdate) }}</td>

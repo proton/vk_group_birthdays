@@ -40,6 +40,11 @@ var app = new Vue({
     group_info: null,
     progress: 100
   },
+  computed: {
+    sortedUsers: function() {
+      return _.orderBy(this.users, ['next_bdate'], ['asc']);
+    }
+  },
   watch: {
     url: function() { this.updateData(); }
   },
