@@ -79,31 +79,21 @@ var app = new Vue({
         else self.resetData();
       });
     },
-    loadGroupMembersApiRequest: function(group_id, count, offset) {
-      var fields = 'photo_50, photo_400_orig, universities, bdate';
-      return 'API.groups.getMembers({"group_id": ' + group_id + ', "v": ' + VK_API_VERSION + ', "sort": "id_asc", "fields": "' + fields + '", "count": "' + count + '", "offset": ' + offset + '}).items';
-    },
     loadGroupMembers: function() {
-      // (c) https://habrahabr.ru/post/248725/
       var self = this;
       var group_id = self.group_info.id;
       var members_count = self.group_info.members_count;
       var offset = 1000;
-      var code =  'var members = ' + self.loadGroupMembersApiRequest(group_id, offset, self.users.length) + ';' // делаем первый запрос и создаем массив
-      + 'var offset = '+offset+';' // это сдвиг по участникам группы
-      + 'while (offset < '+ 20 * offset + ' && (offset + ' + self.users.length + ') < ' + members_count + ')' // пока не получили 20000 и не прошлись по всем участникам
-      + '{'
-        + 'members = members + ' + self.loadGroupMembersApiRequest(group_id, offset, self.users.length + ' + offset') + ';' // сдвиг участников на offset + мощность массива
-        + 'offset = offset + '+offset+';' // увеличиваем сдвиг на 1000
-      + '};'
-      + 'return members;'; // вернуть массив members
-  
-      VK.Api.call("execute", {code: code}, function(r) {
-        if (r.response) {
-          var new_users = r.response.forEach(function(u) { u.next_bdate = calculateNextBirthday(u.bdate); })
-          self.users = self.users.concat(r.response); // запишем это в массив
-          if (members_count >  self.users.length) // если еще не всех участников получили
-            setTimeout(function() { self.loadGroupMembers(); }, 333); // задержка 0.333 с. после чего запустим еще раз
+      var fields = 'photo_50, photo_400_orig, universities, bdate';
+
+      var request_params = { group_id: group_id, fields: fields, v: VK_API_VERSION, sort: "id_asc", count: offset, offset: self.users.length };
+      console.log(request_params);
+      VK.Api.call('groups.getMembers', request_params, function(r) {
+        if(r.response) {
+          var new_users = r.response.items;
+          new_users.forEach(function(u) { u.next_bdate = calculateNextBirthday(u.bdate); })
+          self.users = self.users.concat(new_users);
+          if (members_count >  self.users.length) setTimeout(function() { self.loadGroupMembers(); }, 333);
         } else {
           console.log(data.error.error_msg);
           self.resetData();
