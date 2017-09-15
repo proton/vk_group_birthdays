@@ -58,7 +58,7 @@
             <td>{{ user.first_name }} {{ user.last_name }}</td>
             <td>{{ formatDate(user.next_bdate) }}</td>
             <td><div v-for="university in user.universities">{{ university.name }}</div></td>
-            <td><a :href="domain + user.id">{{ domain + user.id }}</a></td>
+            <td><a :href="userUrl(user)">{{ userUrl(user) }}</a></td>
           </tr>
         </tbody>
       </table>

@@ -68,6 +68,9 @@ var app = new Vue({
       if (!date) return '';
       return date.toLocaleString('ru', { month: 'long', day: 'numeric' } );
     },
+    userUrl(user) {
+      return this.domain + 'id' + user.id;
+    },
     loadGroupInfo: function() {
       var self = this;
       var group_id = this.url.slice(self.domain.length);
